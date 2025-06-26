@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Plus, Users, Calendar, Settings, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import CustomerManager from "@/components/CustomerManager";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -142,6 +143,11 @@ const Dashboard = () => {
               <CardDescription>Delivery Success Rate</CardDescription>
             </CardHeader>
           </Card>
+        </div>
+
+        {/* Customer List Section */}
+        <div className="mb-8">
+          <CustomerManager />
         </div>
 
         {/* Upcoming Messages */}

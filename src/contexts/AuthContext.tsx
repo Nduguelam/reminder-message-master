@@ -1,5 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface User {
   id: string;
@@ -23,51 +25,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('salesReminderUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || '',
+          subscription: 'basic'
+        });
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || '',
+          subscription: 'basic'
+        });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser: User = {
-      id: '1',
-      email,
-      name: email.split('@')[0],
-      subscription: 'basic'
-    };
-    
-    setUser(mockUser);
-    localStorage.setItem('salesReminderUser', JSON.stringify(mockUser));
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
     setLoading(false);
   };
 
   const signup = async (email: string, password: string, name: string) => {
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser: User = {
-      id: '1',
+    const { error } = await supabase.auth.signUp({
       email,
-      name,
-      subscription: null
-    };
-    
-    setUser(mockUser);
-    localStorage.setItem('salesReminderUser', JSON.stringify(mockUser));
+      password,
+      options: {
+        data: { name }
+      }
+    });
+    if (error) throw error;
     setLoading(false);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('salesReminderUser');
   };
 
   return (
