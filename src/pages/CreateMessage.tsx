@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,9 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MessageSquare, ArrowLeft, Zap, Calendar, Users } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import LanguageToggle from "@/components/LanguageToggle";
 
 const CreateMessage = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -31,8 +35,8 @@ const CreateMessage = () => {
   const generateAIMessage = async () => {
     if (!messageType) {
       toast({
-        title: "Please select a message type",
-        description: "Choose a message type before generating AI content.",
+        title: t('pleaseSelectMessageType'),
+        description: t('chooseMessageTypeBeforeGenerating'),
         variant: "destructive",
       });
       return;
@@ -55,20 +59,63 @@ const CreateMessage = () => {
     setIsGenerating(false);
     
     toast({
-      title: "AI message generated!",
-      description: "Your message has been created. Feel free to edit it as needed.",
+      title: t('aiMessageGenerated'),
+      description: t('messageHasBeenCreated'),
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    toast({
-      title: "Message scheduled successfully!",
-      description: `Your ${messageType.replace('-', ' ')} message has been scheduled for ${scheduleDate} at ${scheduleTime}.`,
-    });
+    try {
+      // Count recipients
+      const recipients = customerList.split(/[,\n]/).filter(contact => contact.trim()).length;
+      
+      // Save message to database
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          user_id: user.id,
+          message_text: message,
+          scheduled_date: new Date(`${scheduleDate}T${scheduleTime}`).toISOString(),
+          status: 'Scheduled',
+          message_type: messageType,
+          recipient_count: recipients
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: t('messageScheduledSuccessfully'),
+        description: `${t('yourMessageHasBeenScheduled')} ${scheduleDate} ${t('at')} ${scheduleTime}.`,
+      });
+      
+      navigate("/dashboard");
+    } catch (error) {
+      console.error('Error saving message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to schedule message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generateSampleMessage = () => {
+    const sampleMessages = [
+      "🎉 Special promotion! Get 30% off on all items this weekend only. Don't miss out!",
+      "🌟 New collection just arrived! Check out our latest styles and trends. Visit us today!",
+      "💝 Thank you for being our valued customer! Enjoy exclusive member benefits.",
+      "⏰ Limited time offer: Buy one, get one free on selected items. Hurry while stocks last!"
+    ];
     
-    navigate("/dashboard");
+    const randomMessage = sampleMessages[Math.floor(Math.random() * sampleMessages.length)];
+    setMessage(randomMessage);
+    
+    toast({
+      title: "Sample message generated!",
+      description: "A sample sales message has been created for you.",
+    });
   };
 
   return (
@@ -76,17 +123,20 @@ const CreateMessage = () => {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-            <div className="flex items-center space-x-2">
-              <MessageSquare className="h-6 w-6 text-blue-600" />
-              <h1 className="text-xl font-bold text-gray-900">Create New Message</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t('backToDashboard')}
+                </Button>
+              </Link>
+              <div className="flex items-center space-x-2">
+                <MessageSquare className="h-6 w-6 text-blue-600" />
+                <h1 className="text-xl font-bold text-gray-900">{t('createNewMessage')}</h1>
+              </div>
             </div>
+            <LanguageToggle />
           </div>
         </div>
       </header>
@@ -98,51 +148,61 @@ const CreateMessage = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <MessageSquare className="h-5 w-5 mr-2" />
-                Message Details
+                {t('messageDetails')}
               </CardTitle>
-              <CardDescription>Choose your message type and content</CardDescription>
+              <CardDescription>{t('chooseMessageTypeAndContent')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="messageType">Message Type</Label>
+                <Label htmlFor="messageType">{t('messageType')}</Label>
                 <Select value={messageType} onValueChange={setMessageType}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select message type" />
+                    <SelectValue placeholder={t('selectMessageType')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="general-sale">General Sale</SelectItem>
-                    <SelectItem value="flash-sale">Flash Sale</SelectItem>
-                    <SelectItem value="special-offer">Special Offer</SelectItem>
-                    <SelectItem value="holiday-greeting">Holiday Greeting</SelectItem>
-                    <SelectItem value="birthday-message">Birthday Message</SelectItem>
+                    <SelectItem value="general-sale">{t('generalSale')}</SelectItem>
+                    <SelectItem value="flash-sale">{t('flashSale')}</SelectItem>
+                    <SelectItem value="special-offer">{t('specialOffer')}</SelectItem>
+                    <SelectItem value="holiday-greeting">{t('holidayGreeting')}</SelectItem>
+                    <SelectItem value="birthday-message">{t('birthdayMessage')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="message">Message Content</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={generateAIMessage}
-                    disabled={isGenerating}
-                  >
-                    <Zap className="h-4 w-4 mr-2" />
-                    {isGenerating ? "Generating..." : "Generate with AI"}
-                  </Button>
+                  <Label htmlFor="message">{t('messageContent')}</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateSampleMessage}
+                    >
+                      {t('generateSampleSalesMessage')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateAIMessage}
+                      disabled={isGenerating}
+                    >
+                      <Zap className="h-4 w-4 mr-2" />
+                      {isGenerating ? t('generating') : t('generateWithAI')}
+                    </Button>
+                  </div>
                 </div>
                 <Textarea
                   id="message"
-                  placeholder="Write your message here or use AI to generate one..."
+                  placeholder={t('writeMessageHere')}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   rows={5}
                   required
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  {message.length}/500 characters
+                  {message.length}/500 {t('characters')}
                 </p>
               </div>
             </CardContent>
@@ -153,14 +213,14 @@ const CreateMessage = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Calendar className="h-5 w-5 mr-2" />
-                Schedule Delivery
+                {t('scheduleDelivery')}
               </CardTitle>
-              <CardDescription>When should this message be sent?</CardDescription>
+              <CardDescription>{t('whenShouldMessageBeSent')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="scheduleDate">Date</Label>
+                  <Label htmlFor="scheduleDate">{t('date')}</Label>
                   <Input
                     id="scheduleDate"
                     type="date"
@@ -170,7 +230,7 @@ const CreateMessage = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="scheduleTime">Time</Label>
+                  <Label htmlFor="scheduleTime">{t('time')}</Label>
                   <Input
                     id="scheduleTime"
                     type="time"
@@ -188,14 +248,14 @@ const CreateMessage = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Users className="h-5 w-5 mr-2" />
-                Customer List
+                {t('customerList')}
               </CardTitle>
-              <CardDescription>Add customer contacts (WhatsApp numbers or Instagram usernames)</CardDescription>
+              <CardDescription>{t('addCustomerContacts')}</CardDescription>
             </CardHeader>
             <CardContent>
               <Textarea
                 id="customerList"
-                placeholder="Enter contacts separated by commas or new lines:&#10;+1234567890, @instagram_user, +9876543210"
+                placeholder={t('enterContactsSeparated')}
                 value={customerList}
                 onChange={(e) => setCustomerList(e.target.value)}
                 rows={6}
@@ -203,11 +263,11 @@ const CreateMessage = () => {
               />
               <div className="flex justify-between mt-2">
                 <p className="text-sm text-gray-500">
-                  Separate contacts with commas or new lines
+                  {t('separateContactsWithCommas')}
                 </p>
                 <Link to="/customers">
                   <Button type="button" variant="link" size="sm">
-                    Manage saved customer lists →
+                    {t('manageSavedCustomerLists')}
                   </Button>
                 </Link>
               </div>
@@ -217,9 +277,9 @@ const CreateMessage = () => {
           {/* Submit */}
           <div className="flex justify-end space-x-4">
             <Link to="/dashboard">
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('cancel')}</Button>
             </Link>
-            <Button type="submit">Schedule Message</Button>
+            <Button type="submit">{t('scheduleMessage')}</Button>
           </div>
         </form>
       </div>

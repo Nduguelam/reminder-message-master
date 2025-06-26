@@ -1,14 +1,18 @@
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Plus, Users, Calendar, Settings, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerManager from "@/components/CustomerManager";
+import MessageHistory from "@/components/MessageHistory";
+import LanguageToggle from "@/components/LanguageToggle";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -27,29 +31,10 @@ const Dashboard = () => {
     },
     {
       id: 2,
-      type: "Holiday Greeting",
+      type: "Holiday Greeting", 
       message: "Happy holidays from our family to yours! 🎄",
       scheduledFor: "Dec 25, 9:00 AM",
       customerCount: 200
-    }
-  ];
-
-  const recentMessages = [
-    {
-      id: 1,
-      type: "General Sale",
-      message: "New arrivals just in! Check out our latest collection.",
-      sentDate: "Yesterday",
-      customerCount: 150,
-      delivered: 148
-    },
-    {
-      id: 2,
-      type: "Special Offer",
-      message: "Weekend special: Buy 2 get 1 free!",
-      sentDate: "3 days ago",
-      customerCount: 175,
-      delivered: 173
     }
   ];
 
@@ -69,10 +54,11 @@ const Dashboard = () => {
               <h1 className="text-2xl font-bold text-gray-900">Sales Reminder Pro</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.name}</span>
+              <span className="text-sm text-gray-600">{t('welcome')}, {user.name}</span>
+              <LanguageToggle />
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                {t('logout')}
               </Button>
             </div>
           </div>
@@ -86,8 +72,8 @@ const Dashboard = () => {
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
                 <Plus className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold">Create Message</h3>
-                <p className="text-sm text-gray-600">Schedule new campaigns</p>
+                <h3 className="font-semibold">{t('createMessage')}</h3>
+                <p className="text-sm text-gray-600">{t('scheduleNewCampaigns')}</p>
               </CardContent>
             </Card>
           </Link>
@@ -96,8 +82,8 @@ const Dashboard = () => {
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
                 <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold">Customers</h3>
-                <p className="text-sm text-gray-600">Manage contact lists</p>
+                <h3 className="font-semibold">{t('customers')}</h3>
+                <p className="text-sm text-gray-600">{t('manageContactLists')}</p>
               </CardContent>
             </Card>
           </Link>
@@ -106,17 +92,17 @@ const Dashboard = () => {
             <CardContent className="p-6 text-center">
               <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
               <h3 className="font-semibold">Schedule</h3>
-              <p className="text-sm text-gray-600">View all campaigns</p>
+              <p className="text-sm text-gray-600">{t('viewAllCampaigns')}</p>
             </CardContent>
           </Card>
 
-          <Link to="/pricing">
+          <Link to="/subscription">
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
                 <Settings className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold">Subscription</h3>
+                <h3 className="font-semibold">{t('subscription')}</h3>
                 <p className="text-sm text-gray-600">
-                  {user.subscription ? `${user.subscription} Plan` : "Upgrade plan"}
+                  {user.subscription ? `${user.subscription} Plan` : t('upgradePlan')}
                 </p>
               </CardContent>
             </Card>
@@ -128,19 +114,19 @@ const Dashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">247</CardTitle>
-              <CardDescription>Total Customers</CardDescription>
+              <CardDescription>{t('totalCustomers')}</CardDescription>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">12</CardTitle>
-              <CardDescription>Messages Sent This Week</CardDescription>
+              <CardDescription>{t('messagesSentThisWeek')}</CardDescription>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">95.8%</CardTitle>
-              <CardDescription>Delivery Success Rate</CardDescription>
+              <CardDescription>{t('deliverySuccessRate')}</CardDescription>
             </CardHeader>
           </Card>
         </div>
@@ -150,11 +136,16 @@ const Dashboard = () => {
           <CustomerManager />
         </div>
 
+        {/* Message History Section */}
+        <div className="mb-8">
+          <MessageHistory />
+        </div>
+
         {/* Upcoming Messages */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Upcoming Scheduled Messages</CardTitle>
-            <CardDescription>Messages ready to be sent</CardDescription>
+            <CardTitle>{t('upcomingScheduledMessages')}</CardTitle>
+            <CardDescription>{t('messagesReadyToBeSent')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -166,40 +157,9 @@ const Dashboard = () => {
                       <span className="text-sm text-gray-600">{message.scheduledFor}</span>
                     </div>
                     <p className="text-sm mb-1">{message.message}</p>
-                    <p className="text-xs text-gray-500">{message.customerCount} recipients</p>
+                    <p className="text-xs text-gray-500">{message.customerCount} {t('recipients')}</p>
                   </div>
-                  <Button size="sm" variant="outline">Edit</Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Messages */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Campaigns</CardTitle>
-            <CardDescription>Your latest sent messages</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentMessages.map((message) => (
-                <div key={message.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="secondary">{message.type}</Badge>
-                      <span className="text-sm text-gray-600">{message.sentDate}</span>
-                    </div>
-                    <p className="text-sm mb-1">{message.message}</p>
-                    <p className="text-xs text-gray-500">
-                      {message.delivered}/{message.customerCount} delivered successfully
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-green-600">
-                      {Math.round((message.delivered / message.customerCount) * 100)}% delivered
-                    </p>
-                  </div>
+                  <Button size="sm" variant="outline">{t('edit')}</Button>
                 </div>
               ))}
             </div>
