@@ -18,6 +18,16 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      toast({
+        title: "Missing information",
+        description: "Please enter both email and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await login(email, password);
       toast({
@@ -25,10 +35,28 @@ const Login = () => {
         description: "You've successfully logged in.",
       });
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Login error:', error);
+      
+      let errorMessage = "Please check your credentials and try again.";
+      let errorTitle = "Login failed";
+      
+      if (error?.message) {
+        if (error.message.includes("Email not confirmed")) {
+          errorTitle = "Email not confirmed";
+          errorMessage = "Please check your email and click the confirmation link before logging in.";
+        } else if (error.message.includes("Invalid login credentials")) {
+          errorTitle = "Invalid credentials";
+          errorMessage = "The email or password you entered is incorrect. Please try again.";
+        } else if (error.message.includes("Too many requests")) {
+          errorTitle = "Too many attempts";
+          errorMessage = "Too many login attempts. Please wait a few minutes before trying again.";
+        }
+      }
+      
       toast({
-        title: "Login failed",
-        description: "Please check your credentials and try again.",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -56,6 +84,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -67,6 +96,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
