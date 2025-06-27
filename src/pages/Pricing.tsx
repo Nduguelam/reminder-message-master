@@ -86,6 +86,9 @@ const Pricing = () => {
     });
     
     setIsProcessing(null);
+    
+    // Navigate to dashboard after successful subscription
+    navigate("/dashboard");
   };
 
   return (
