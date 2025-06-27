@@ -12,7 +12,7 @@ interface Message {
   id: string;
   message_text: string;
   scheduled_date: string;
-  status: 'Scheduled' | 'Sent' | 'Failed';
+  status: string;
   message_type: string | null;
   recipient_count: number;
   created_at: string;
