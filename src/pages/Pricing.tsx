@@ -1,16 +1,16 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, MessageSquare, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const Pricing = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
   const plans = [
@@ -71,11 +71,7 @@ const Pricing = () => {
 
   const handleSubscribe = async (planId: string) => {
     if (!user) {
-      toast({
-        title: "Please log in",
-        description: "You need to create an account first.",
-        variant: "destructive",
-      });
+      navigate("/signup");
       return;
     }
 
