@@ -20,6 +20,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Function to log login attempts
+const logLoginAttempt = async (email: string, success: boolean, userId?: string, errorMessage?: string) => {
+  try {
+    const { error } = await supabase
+      .from('login_logs')
+      .insert({
+        user_id: userId || null,
+        email: email,
+        success: success,
+        ip_address: null, // Would need additional setup to get real IP
+        user_agent: navigator.userAgent,
+        error_message: errorMessage || null,
+        login_attempt_at: new Date().toISOString()
+      });
+    
+    if (error) {
+      console.error('Failed to log login attempt:', error);
+    }
+  } catch (err) {
+    console.error('Error logging login attempt:', err);
+  }
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,10 +99,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         console.error('Login error:', error);
+        // Log failed login attempt
+        await logLoginAttempt(email, false, undefined, error.message);
         throw error;
       }
       
       console.log('Login successful:', data.user?.email);
+      // Log successful login attempt
+      await logLoginAttempt(email, true, data.user?.id);
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
