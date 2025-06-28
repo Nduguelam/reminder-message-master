@@ -12,9 +12,15 @@ import { useToast } from "@/hooks/use-toast";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading } = useAuth();
+  const { login, loading, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  if (user && !loading) {
+    navigate("/dashboard");
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +49,8 @@ const Login = () => {
       
       if (error?.message) {
         if (error.message.includes("Email not confirmed")) {
-          errorTitle = "Email not confirmed";
-          errorMessage = "Please check your email and click the confirmation link before logging in.";
+          errorTitle = "Please check your email";
+          errorMessage = "We've sent you a confirmation email. Please click the link in your email to confirm your account before logging in.";
         } else if (error.message.includes("Invalid login credentials")) {
           errorTitle = "Invalid credentials";
           errorMessage = "The email or password you entered is incorrect. Please try again.";
