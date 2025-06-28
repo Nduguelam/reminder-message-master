@@ -12,14 +12,27 @@ import { useToast } from "@/hooks/use-toast";
 import LanguageToggle from "@/components/LanguageToggle";
 
 const Subscription = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState("");
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
 
-  if (!user) {
+  // Show loading while auth is being checked
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only redirect to login if user is definitely not authenticated and not loading
+  if (!loading && !user) {
     navigate("/login");
     return null;
   }
