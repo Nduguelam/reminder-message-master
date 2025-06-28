@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,12 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Redirect if already logged in
-  if (user && !loading) {
-    navigate("/dashboard");
-    return null;
-  }
+  useEffect(() => {
+    if (user && !loading) {
+      console.log('User is logged in, redirecting to dashboard');
+      navigate("/dashboard");
+    }
+  }, [user, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,15 +44,15 @@ const Login = () => {
       });
       navigate("/dashboard");
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Login error in component:', error);
       
       let errorMessage = "Please check your credentials and try again.";
       let errorTitle = "Login failed";
       
       if (error?.message) {
         if (error.message.includes("Email not confirmed")) {
-          errorTitle = "Please check your email";
-          errorMessage = "We've sent you a confirmation email. Please click the link in your email to confirm your account before logging in.";
+          errorTitle = "Account not activated";
+          errorMessage = "Please check your email inbox and click the confirmation link to activate your account. If you can't find the email, check your spam folder.";
         } else if (error.message.includes("Invalid login credentials")) {
           errorTitle = "Invalid credentials";
           errorMessage = "The email or password you entered is incorrect. Please try again.";
@@ -67,6 +69,11 @@ const Login = () => {
       });
     }
   };
+
+  // Don't render login form if user is already logged in
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
