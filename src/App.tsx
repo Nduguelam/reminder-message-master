@@ -14,6 +14,8 @@ import CreateMessage from "./pages/CreateMessage";
 import Customers from "./pages/Customers";
 import Pricing from "./pages/Pricing";
 import Subscription from "./pages/Subscription";
+import PaymentInstructions from "./pages/PaymentInstructions";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
               <Route path="/customers" element={<Customers />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/subscription" element={<Subscription />} />
+              <Route path="/payment-instructions" element={<PaymentInstructions />} />
+              <Route path="/admin" element={<AdminPanel />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
