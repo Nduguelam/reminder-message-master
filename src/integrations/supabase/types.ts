@@ -75,6 +75,66 @@ export type Database = {
         }
         Relationships: []
       }
+      message_logs: {
+        Row: {
+          created_at: string
+          customer_id: string
+          delivered_at: string | null
+          delivery_status: string
+          error_message: string | null
+          id: string
+          message_id: string
+          phone_number: string
+          platform: string | null
+          read_at: string | null
+          sent_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          delivered_at?: string | null
+          delivery_status?: string
+          error_message?: string | null
+          id?: string
+          message_id: string
+          phone_number: string
+          platform?: string | null
+          read_at?: string | null
+          sent_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          delivered_at?: string | null
+          delivery_status?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string
+          phone_number?: string
+          platform?: string | null
+          read_at?: string | null
+          sent_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_logs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_logs_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           created_at: string
@@ -106,6 +166,140 @@ export type Database = {
           recipient_count?: number | null
           scheduled_date?: string
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          error_message: string | null
+          id: string
+          payment_method: string
+          phone_number: string | null
+          processed_at: string | null
+          reference_number: string | null
+          status: string
+          subscription_id: string | null
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          error_message?: string | null
+          id?: string
+          payment_method: string
+          phone_number?: string | null
+          processed_at?: string | null
+          reference_number?: string | null
+          status?: string
+          subscription_id?: string | null
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          error_message?: string | null
+          id?: string
+          payment_method?: string
+          phone_number?: string | null
+          processed_at?: string | null
+          reference_number?: string | null
+          status?: string
+          subscription_id?: string | null
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          currency: string | null
+          end_date: string | null
+          id: string
+          plan_type: string
+          price_paid: number | null
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          end_date?: string | null
+          id?: string
+          plan_type: string
+          price_paid?: number | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          end_date?: string | null
+          id?: string
+          plan_type?: string
+          price_paid?: number | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          date_format: string | null
+          email_notifications: boolean | null
+          id: string
+          language: string
+          marketing_emails: boolean | null
+          sms_notifications: boolean | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_format?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          language?: string
+          marketing_emails?: boolean | null
+          sms_notifications?: boolean | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_format?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          language?: string
+          marketing_emails?: boolean | null
+          sms_notifications?: boolean | null
+          timezone?: string | null
           updated_at?: string
           user_id?: string
         }

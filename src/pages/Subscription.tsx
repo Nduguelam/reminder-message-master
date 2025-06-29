@@ -1,15 +1,26 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { MessageSquare, ArrowLeft, CreditCard, Phone, Building, Upload, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import LanguageToggle from "@/components/LanguageToggle";
+
+interface Subscription {
+  id: string;
+  plan_type: string;
+  status: string;
+  start_date: string;
+  end_date: string | null;
+  price_paid: number | null;
+}
 
 const Subscription = () => {
   const { user, loading } = useAuth();
@@ -18,6 +29,8 @@ const Subscription = () => {
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState("");
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Show loading while auth is being checked
   if (loading) {
@@ -36,6 +49,30 @@ const Subscription = () => {
     navigate("/login");
     return null;
   }
+
+  // Fetch current subscription
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching subscription:', error);
+      } else {
+        setCurrentSubscription(data);
+      }
+    };
+
+    fetchSubscription();
+  }, [user]);
 
   const plans = [
     {
@@ -75,6 +112,63 @@ const Subscription = () => {
     });
   };
 
+  const handleSubmitPaymentProof = async () => {
+    if (!selectedPlan || !user) return;
+
+    setIsSubmitting(true);
+    try {
+      const selectedPlanData = plans.find(p => p.id === selectedPlan);
+      if (!selectedPlanData) return;
+
+      // Create subscription record
+      const { data: subscription, error: subscriptionError } = await supabase
+        .from('subscriptions')
+        .insert({
+          user_id: user.id,
+          plan_type: selectedPlan,
+          status: 'inactive', // Will be activated after payment confirmation
+          price_paid: parseFloat(selectedPlanData.price.replace(',', '')),
+          currency: 'RWF'
+        })
+        .select()
+        .single();
+
+      if (subscriptionError) throw subscriptionError;
+
+      // Create payment transaction record
+      const { error: transactionError } = await supabase
+        .from('payment_transactions')
+        .insert({
+          user_id: user.id,
+          subscription_id: subscription.id,
+          payment_method: 'mtn_momo', // Default for now
+          amount: parseFloat(selectedPlanData.price.replace(',', '')),
+          currency: 'RWF',
+          status: 'pending'
+        });
+
+      if (transactionError) throw transactionError;
+
+      toast({
+        title: "Payment Proof Submitted",
+        description: "Your payment proof has been submitted. We'll activate your subscription once payment is confirmed.",
+      });
+
+      setPaymentProof(null);
+      setSelectedPlan('');
+      
+    } catch (error) {
+      console.error('Error submitting payment proof:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit payment proof. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -99,6 +193,32 @@ const Subscription = () => {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Current Subscription Status */}
+        {currentSubscription && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Current Subscription
+                <Badge variant={currentSubscription.status === 'active' ? 'default' : 'secondary'}>
+                  {currentSubscription.status}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <p><strong>Plan:</strong> {currentSubscription.plan_type}</p>
+                  <p><strong>Started:</strong> {new Date(currentSubscription.start_date).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p><strong>Price Paid:</strong> {currentSubscription.price_paid ? `${currentSubscription.price_paid.toLocaleString()} RWF` : 'N/A'}</p>
+                  <p><strong>Expires:</strong> {currentSubscription.end_date ? new Date(currentSubscription.end_date).toLocaleDateString() : 'Never'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Subscription Plans */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-center mb-2">{t('subscriptionPlans')}</h2>
@@ -201,10 +321,14 @@ const Subscription = () => {
                   </div>
                 </div>
                 
-                {paymentProof && (
-                  <Button className="w-full mt-4">
+                {paymentProof && selectedPlan && (
+                  <Button 
+                    className="w-full mt-4" 
+                    onClick={handleSubmitPaymentProof}
+                    disabled={isSubmitting}
+                  >
                     <Upload className="h-4 w-4 mr-2" />
-                    Submit Payment Proof
+                    {isSubmitting ? "Submitting..." : "Submit Payment Proof"}
                   </Button>
                 )}
               </div>
