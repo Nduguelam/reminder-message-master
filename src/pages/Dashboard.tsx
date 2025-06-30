@@ -4,11 +4,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Plus, Users, Calendar, Settings, LogOut } from "lucide-react";
+import { MessageSquare, Plus, Users, Calendar, Settings, LogOut, History } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerManager from "@/components/CustomerManager";
 import MessageHistory from "@/components/MessageHistory";
 import LanguageToggle from "@/components/LanguageToggle";
+import SendMessageDialog from "@/components/SendMessageDialog";
+import CustomerTable from "@/components/CustomerTable";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -55,6 +57,7 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">{t('welcome')}, {user.name}</span>
+              <SendMessageDialog />
               <LanguageToggle />
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
@@ -67,7 +70,7 @@ const Dashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
+        <div className="grid md:grid-cols-5 gap-4 mb-8">
           <Link to="/create-message">
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
@@ -88,6 +91,16 @@ const Dashboard = () => {
             </Card>
           </Link>
 
+          <Link to="/message-history">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <History className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <h3 className="font-semibold">Message History</h3>
+                <p className="text-sm text-gray-600">View all sent messages</p>
+              </CardContent>
+            </Card>
+          </Link>
+
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="p-6 text-center">
               <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
@@ -96,14 +109,12 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Link to="/subscription">
+          <Link to="/payment">
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
                 <Settings className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold">{t('subscription')}</h3>
-                <p className="text-sm text-gray-600">
-                  {user.subscription ? `${user.subscription} Plan` : t('upgradePlan')}
-                </p>
+                <h3 className="font-semibold">Payment</h3>
+                <p className="text-sm text-gray-600">Upgrade your plan</p>
               </CardContent>
             </Card>
           </Link>
@@ -129,6 +140,11 @@ const Dashboard = () => {
               <CardDescription>{t('deliverySuccessRate')}</CardDescription>
             </CardHeader>
           </Card>
+        </div>
+
+        {/* Customer Table Section */}
+        <div className="mb-8">
+          <CustomerTable />
         </div>
 
         {/* Customer List Section */}

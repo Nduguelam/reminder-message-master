@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Shield, CheckCircle, XCircle, Clock, ArrowLeft } from "lucide-react";
+import { Shield, CheckCircle, XCircle, Clock, ArrowLeft, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,15 +25,24 @@ interface PaymentTransaction {
   };
 }
 
+interface UserPaymentStatus {
+  user_id: string;
+  payment_status: string;
+  language: string;
+}
+
 const AdminPanel = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([]);
+  const [userPayments, setUserPayments] = useState<UserPaymentStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'transactions' | 'users'>('transactions');
 
   useEffect(() => {
     fetchPendingTransactions();
+    fetchUserPaymentStatuses();
   }, []);
 
   const fetchPendingTransactions = async () => {
@@ -61,6 +70,25 @@ const AdminPanel = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchUserPaymentStatuses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('user_id, payment_status, language')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUserPayments(data || []);
+    } catch (error) {
+      console.error('Error fetching user payment statuses:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch user payment statuses",
+        variant: "destructive"
+      });
     }
   };
 
@@ -133,6 +161,31 @@ const AdminPanel = () => {
     }
   };
 
+  const handleUpdatePaymentStatus = async (userId: string, status: 'Paid' | 'Not Paid') => {
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .update({ payment_status: status })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status Updated",
+        description: `Payment status updated to ${status}`,
+      });
+
+      fetchUserPaymentStatuses();
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update payment status",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
@@ -146,6 +199,12 @@ const AdminPanel = () => {
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
+  };
+
+  const getPaymentStatusBadge = (status: string) => {
+    return status === 'Paid' ? 
+      <Badge className="bg-green-100 text-green-800">Paid</Badge> : 
+      <Badge className="bg-red-100 text-red-800">Not Paid</Badge>;
   };
 
   if (loading) {
@@ -196,85 +255,164 @@ const AdminPanel = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Transaction Management</CardTitle>
-            <CardDescription>
-              Review and approve pending payment transactions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-2 text-gray-600">Loading transactions...</p>
-              </div>
-            ) : transactions.length === 0 ? (
-              <div className="text-center py-8">
-                <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No payment transactions found.</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>User ID</TableHead>
-                    <TableHead>Plan</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {transactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
-                      <TableCell>
-                        {new Date(transaction.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {transaction.user_id.slice(0, 8)}...
-                      </TableCell>
-                      <TableCell className="capitalize">
-                        {transaction.subscriptions?.plan_type || 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        ${transaction.amount} {transaction.currency}
-                      </TableCell>
-                      <TableCell>{transaction.phone_number}</TableCell>
-                      <TableCell>
-                        {getStatusBadge(transaction.status)}
-                      </TableCell>
-                      <TableCell>
-                        {transaction.status === 'pending' && (
+        {/* Tab Navigation */}
+        <div className="flex space-x-4 mb-6">
+          <Button
+            variant={activeTab === 'transactions' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('transactions')}
+          >
+            Payment Transactions
+          </Button>
+          <Button
+            variant={activeTab === 'users' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('users')}
+          >
+            User Payment Status
+          </Button>
+        </div>
+
+        {activeTab === 'transactions' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment Transaction Management</CardTitle>
+              <CardDescription>
+                Review and approve pending payment transactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-2 text-gray-600">Loading transactions...</p>
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="text-center py-8">
+                  <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No payment transactions found.</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>User ID</TableHead>
+                      <TableHead>Plan</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transactions.map((transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell>
+                          {new Date(transaction.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {transaction.user_id.slice(0, 8)}...
+                        </TableCell>
+                        <TableCell className="capitalize">
+                          {transaction.subscriptions?.plan_type || 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          ${transaction.amount} {transaction.currency}
+                        </TableCell>
+                        <TableCell>{transaction.phone_number}</TableCell>
+                        <TableCell>
+                          {getStatusBadge(transaction.status)}
+                        </TableCell>
+                        <TableCell>
+                          {transaction.status === 'pending' && (
+                            <div className="flex space-x-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleApprovePayment(transaction.id, transaction.subscription_id)}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleRejectPayment(transaction.id)}
+                              >
+                                <XCircle className="h-4 w-4 mr-1" />
+                                Reject
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'users' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>User Payment Status Management</CardTitle>
+              <CardDescription>
+                Manually update payment status for each trader
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {userPayments.length === 0 ? (
+                <div className="text-center py-8">
+                  <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No users found.</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User ID</TableHead>
+                      <TableHead>Current Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {userPayments.map((userPayment) => (
+                      <TableRow key={userPayment.user_id}>
+                        <TableCell className="font-mono text-sm">
+                          {userPayment.user_id.slice(0, 8)}...
+                        </TableCell>
+                        <TableCell>
+                          {getPaymentStatusBadge(userPayment.payment_status)}
+                        </TableCell>
+                        <TableCell>
                           <div className="flex space-x-2">
                             <Button
                               size="sm"
-                              onClick={() => handleApprovePayment(transaction.id, transaction.subscription_id)}
+                              onClick={() => handleUpdatePaymentStatus(userPayment.user_id, 'Paid')}
                               className="bg-green-600 hover:bg-green-700"
+                              disabled={userPayment.payment_status === 'Paid'}
                             >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Approve
+                              Mark Paid
                             </Button>
                             <Button
                               size="sm"
                               variant="destructive"
-                              onClick={() => handleRejectPayment(transaction.id)}
+                              onClick={() => handleUpdatePaymentStatus(userPayment.user_id, 'Not Paid')}
+                              disabled={userPayment.payment_status === 'Not Paid'}
                             >
-                              <XCircle className="h-4 w-4 mr-1" />
-                              Reject
+                              Mark Not Paid
                             </Button>
                           </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

@@ -75,6 +75,33 @@ export type Database = {
         }
         Relationships: []
       }
+      message_history: {
+        Row: {
+          created_at: string
+          customer_count: number
+          id: string
+          message_text: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_count?: number
+          id?: string
+          message_text: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_count?: number
+          id?: string
+          message_text?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_logs: {
         Row: {
           created_at: string
@@ -274,6 +301,7 @@ export type Database = {
           id: string
           language: string
           marketing_emails: boolean | null
+          payment_status: string | null
           sms_notifications: boolean | null
           timezone: string | null
           updated_at: string
@@ -286,6 +314,7 @@ export type Database = {
           id?: string
           language?: string
           marketing_emails?: boolean | null
+          payment_status?: string | null
           sms_notifications?: boolean | null
           timezone?: string | null
           updated_at?: string
@@ -298,6 +327,7 @@ export type Database = {
           id?: string
           language?: string
           marketing_emails?: boolean | null
+          payment_status?: string | null
           sms_notifications?: boolean | null
           timezone?: string | null
           updated_at?: string
