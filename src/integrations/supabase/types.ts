@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          last_message_sent: string | null
           name: string
           phone_number: string
           segment: string | null
@@ -22,6 +23,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          last_message_sent?: string | null
           name: string
           phone_number: string
           segment?: string | null
@@ -31,6 +33,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          last_message_sent?: string | null
           name?: string
           phone_number?: string
           segment?: string | null
@@ -80,7 +83,9 @@ export type Database = {
           created_at: string
           customer_count: number
           id: string
-          message_text: string
+          message_body: string | null
+          message_text: string | null
+          message_title: string | null
           sent_at: string
           user_id: string
         }
@@ -88,7 +93,9 @@ export type Database = {
           created_at?: string
           customer_count?: number
           id?: string
-          message_text: string
+          message_body?: string | null
+          message_text?: string | null
+          message_title?: string | null
           sent_at?: string
           user_id: string
         }
@@ -96,7 +103,9 @@ export type Database = {
           created_at?: string
           customer_count?: number
           id?: string
-          message_text?: string
+          message_body?: string | null
+          message_text?: string | null
+          message_title?: string | null
           sent_at?: string
           user_id?: string
         }

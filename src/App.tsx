@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import CreateMessage from "./pages/CreateMessage";
+import ComposeMessage from "./pages/ComposeMessage";
 import Customers from "./pages/Customers";
 import PaymentInstructions from "./pages/PaymentInstructions";
 import AdminPanel from "./pages/AdminPanel";
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/signup" element={<Signup />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/create-message" element={<CreateMessage />} />
+              <Route path="/compose-message" element={<ComposeMessage />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/message-history" element={<MessageHistoryPage />} />
               <Route path="/payment" element={<PaymentInstructions />} />

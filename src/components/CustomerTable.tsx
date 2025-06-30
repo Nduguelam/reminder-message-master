@@ -11,8 +11,7 @@ interface Customer {
   id: string;
   name: string;
   phone_number: string;
-  last_message?: string;
-  last_message_date?: string;
+  last_message_sent?: string;
 }
 
 const CustomerTable = () => {
@@ -22,41 +21,21 @@ const CustomerTable = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCustomersWithLastMessage();
+    fetchCustomers();
   }, [user]);
 
-  const fetchCustomersWithLastMessage = async () => {
+  const fetchCustomers = async () => {
     if (!user) return;
 
     try {
-      // Get customers
-      const { data: customersData, error: customersError } = await supabase
+      const { data, error } = await supabase
         .from('customers')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (customersError) throw customersError;
-
-      // Get latest message for each customer (from message_history)
-      const { data: messagesData, error: messagesError } = await supabase
-        .from('message_history')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('sent_at', { ascending: false })
-        .limit(1);
-
-      if (messagesError) throw messagesError;
-
-      const latestMessage = messagesData?.[0];
-
-      const customersWithMessages = customersData?.map(customer => ({
-        ...customer,
-        last_message: latestMessage?.message_text || "No messages sent",
-        last_message_date: latestMessage?.sent_at ? new Date(latestMessage.sent_at).toLocaleDateString() : undefined
-      })) || [];
-
-      setCustomers(customersWithMessages);
+      if (error) throw error;
+      setCustomers(data || []);
     } catch (error) {
       console.error('Error fetching customers:', error);
       toast({
@@ -67,6 +46,12 @@ const CustomerTable = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "No messages sent";
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   if (loading) {
@@ -94,7 +79,7 @@ const CustomerTable = () => {
           <Users className="h-5 w-5 mr-2" />
           Your Customers
         </CardTitle>
-        <CardDescription>All your saved customers and their last received message</CardDescription>
+        <CardDescription>All your saved customers and their last message date</CardDescription>
       </CardHeader>
       <CardContent>
         {customers.length === 0 ? (
@@ -117,14 +102,9 @@ const CustomerTable = () => {
                   <TableCell className="font-medium">{customer.name}</TableCell>
                   <TableCell>{customer.phone_number}</TableCell>
                   <TableCell>
-                    <div>
-                      <p className="text-sm">{customer.last_message}</p>
-                      {customer.last_message_date && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {customer.last_message_date}
-                        </p>
-                      )}
-                    </div>
+                    <span className={customer.last_message_sent ? "text-gray-700" : "text-gray-400"}>
+                      {formatDate(customer.last_message_sent)}
+                    </span>
                   </TableCell>
                 </TableRow>
               ))}

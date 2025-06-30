@@ -1,0 +1,50 @@
+
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { MessageSquare, ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import MessageComposer from "@/components/MessageComposer";
+import LanguageToggle from "@/components/LanguageToggle";
+
+const ComposeMessage = () => {
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  if (!user) {
+    navigate("/login");
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              </Link>
+              <div className="flex items-center space-x-2">
+                <MessageSquare className="h-6 w-6 text-blue-600" />
+                <h1 className="text-xl font-bold text-gray-900">Compose Message</h1>
+              </div>
+            </div>
+            <LanguageToggle />
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <MessageComposer />
+      </div>
+    </div>
+  );
+};
+
+export default ComposeMessage;

@@ -13,7 +13,9 @@ import LanguageToggle from "@/components/LanguageToggle";
 
 interface MessageHistoryItem {
   id: string;
-  message_text: string;
+  message_title: string | null;
+  message_body: string | null;
+  message_text: string | null;
   sent_at: string;
   customer_count: number;
 }
@@ -56,6 +58,13 @@ const MessageHistoryPage = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const getMessageContent = (message: MessageHistoryItem) => {
+    if (message.message_title && message.message_body) {
+      return `${message.message_title}: ${message.message_body}`;
+    }
+    return message.message_text || message.message_title || message.message_body || "No content";
   };
 
   return (
@@ -116,9 +125,16 @@ const MessageHistoryPage = () => {
                         {formatDate(message.sent_at)}
                       </TableCell>
                       <TableCell className="max-w-md">
-                        <p className="truncate" title={message.message_text}>
-                          {message.message_text}
-                        </p>
+                        <div className="space-y-1">
+                          {message.message_title && (
+                            <p className="font-medium truncate" title={message.message_title}>
+                              {message.message_title}
+                            </p>
+                          )}
+                          <p className="text-sm text-gray-600 truncate" title={getMessageContent(message)}>
+                            {message.message_body || message.message_text || "No content"}
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <span className="font-medium">{message.customer_count}</span>
