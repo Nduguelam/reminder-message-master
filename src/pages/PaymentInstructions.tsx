@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Phone, CreditCard, ArrowLeft, Check, AlertCircle } from "lucide-react";
+import { Phone, CreditCard, ArrowLeft, Check, AlertCircle, DollarSign } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,38 +36,47 @@ const PaymentInstructions = () => {
     return null;
   }
 
+  // Updated plans with RWF pricing
   const plans = [
     {
       id: 'monthly',
       name: 'Monthly Plan',
-      price: '$5',
+      priceUSD: '$5',
+      priceRWF: '5,100 RWF',
       duration: '1 month',
       description: 'Perfect for trying out our service',
-      features: ['All basic features', 'Email support', 'Monthly billing']
+      features: ['All basic features', 'Email support', 'Monthly billing'],
+      savings: null
     },
     {
       id: 'quarterly',
       name: '3 Months Plan',
-      price: '$12',
+      priceUSD: '$12',
+      priceRWF: '12,000 RWF',
       duration: '3 months',
       description: 'Save 20% with quarterly billing',
-      features: ['All basic features', 'Priority support', 'Quarterly billing', '20% savings']
+      features: ['All basic features', 'Priority support', 'Quarterly billing', '20% savings'],
+      savings: '20%'
     },
     {
       id: 'biannual',
       name: '6 Months Plan',
-      price: '$20',
+      priceUSD: '$20',
+      priceRWF: '20,000 RWF',
       duration: '6 months',
       description: 'Save 33% with semi-annual billing',
-      features: ['All basic features', 'Priority support', 'Semi-annual billing', '33% savings']
+      features: ['All basic features', 'Priority support', 'Semi-annual billing', '33% savings'],
+      savings: '33%'
     },
     {
       id: 'annual',
       name: '1 Year Plan',
-      price: '$35',
+      priceUSD: '$35',
+      priceRWF: '35,000 RWF',
       duration: '1 year',
       description: 'Best value - Save 42% annually',
-      features: ['All premium features', 'Priority support', 'Annual billing', '42% savings']
+      features: ['All premium features', 'Priority support', 'Annual billing', '42% savings'],
+      savings: '42%'
     }
   ];
 
@@ -88,6 +97,9 @@ const PaymentInstructions = () => {
       const selectedPlanData = plans.find(p => p.id === selectedPlan);
       if (!selectedPlanData) return;
 
+      // Extract numeric value from RWF price
+      const priceRWF = parseInt(selectedPlanData.priceRWF.replace(/[^\d]/g, ''));
+
       // Create subscription record
       const { data: subscription, error: subscriptionError } = await supabase
         .from('subscriptions')
@@ -95,8 +107,8 @@ const PaymentInstructions = () => {
           user_id: user.id,
           plan_type: selectedPlan,
           status: 'inactive',
-          price_paid: parseFloat(selectedPlanData.price.replace('$', '')),
-          currency: 'USD'
+          price_paid: priceRWF,
+          currency: 'RWF'
         })
         .select()
         .single();
@@ -110,8 +122,8 @@ const PaymentInstructions = () => {
           user_id: user.id,
           subscription_id: subscription.id,
           payment_method: 'mtn_momo',
-          amount: parseFloat(selectedPlanData.price.replace('$', '')),
-          currency: 'USD',
+          amount: priceRWF,
+          currency: 'RWF',
           status: 'pending',
           phone_number: '+250783969329'
         });
@@ -164,6 +176,17 @@ const PaymentInstructions = () => {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Currency Notice */}
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center">
+            <DollarSign className="h-5 w-5 text-blue-600 mr-2" />
+            <p className="text-blue-800 dark:text-blue-200">
+              <strong>Payment Currency:</strong> All payments are processed in Rwandan Francs (RWF). 
+              Prices shown include currency conversion from USD.
+            </p>
+          </div>
+        </div>
+
         {/* Subscription Plans */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-white">Choose Your Plan</h2>
@@ -171,11 +194,20 @@ const PaymentInstructions = () => {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {plans.map((plan) => (
-              <Card key={plan.id} className={`relative ${selectedPlan === plan.id ? 'ring-2 ring-blue-500' : ''}`}>
+              <Card key={plan.id} className={`relative ${selectedPlan === plan.id ? 'ring-2 ring-blue-500' : ''} ${plan.savings ? 'border-green-200 dark:border-green-800' : ''}`}>
+                {plan.savings && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-green-600 hover:bg-green-700">
+                      Save {plan.savings}
+                    </Badge>
+                  </div>
+                )}
                 <CardHeader className="text-center">
                   <CardTitle className="text-xl">{plan.name}</CardTitle>
-                  <CardDescription className="text-3xl font-bold text-blue-600">
-                    {plan.price} <span className="text-sm font-normal">/{plan.duration}</span>
+                  <CardDescription className="space-y-1">
+                    <div className="text-2xl font-bold text-blue-600">{plan.priceRWF}</div>
+                    <div className="text-sm text-gray-500">({plan.priceUSD} USD)</div>
+                    <div className="text-sm">per {plan.duration}</div>
                   </CardDescription>
                   <p className="text-sm text-gray-600 dark:text-gray-300">{plan.description}</p>
                 </CardHeader>
@@ -234,7 +266,7 @@ const PaymentInstructions = () => {
                   </div>
                   <div>
                     <p className="font-medium">Step 2: Send Payment</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Transfer the exact amount to +250 783 969 329</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Transfer the exact RWF amount to +250 783 969 329</p>
                   </div>
                 </div>
                 
@@ -261,7 +293,10 @@ const PaymentInstructions = () => {
                   <h3 className="font-semibold text-green-800 dark:text-green-200 mb-2">Selected Plan:</h3>
                   <p className="text-lg font-medium">{plans.find(p => p.id === selectedPlan)?.name}</p>
                   <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {plans.find(p => p.id === selectedPlan)?.price}
+                    {plans.find(p => p.id === selectedPlan)?.priceRWF}
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-400">
+                    ({plans.find(p => p.id === selectedPlan)?.priceUSD} USD equivalent)
                   </p>
                 </div>
               ) : (

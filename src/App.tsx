@@ -17,6 +17,7 @@ import Customers from "./pages/Customers";
 import PaymentInstructions from "./pages/PaymentInstructions";
 import AdminPanel from "./pages/AdminPanel";
 import MessageHistoryPage from "./pages/MessageHistoryPage";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/message-history" element={<MessageHistoryPage />} />
                 <Route path="/payment" element={<PaymentInstructions />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
