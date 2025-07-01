@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import CustomerManager from "@/components/CustomerManager";
 import MessageHistory from "@/components/MessageHistory";
 import LanguageToggle from "@/components/LanguageToggle";
 import CustomerTable from "@/components/CustomerTable";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -53,17 +53,18 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <MessageSquare className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Sales Reminder Pro</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sales Reminder Pro</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">{t('welcome')}, {user.name}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-300">{t('welcome')}, {user.name}</span>
+              <ThemeToggle />
               <LanguageToggle />
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />

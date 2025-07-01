@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import MessageComposer from "@/components/MessageComposer";
 import LanguageToggle from "@/components/LanguageToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const ComposeMessage = () => {
   const { user } = useAuth();
@@ -26,9 +26,9 @@ const ComposeMessage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -40,10 +40,13 @@ const ComposeMessage = () => {
               </Link>
               <div className="flex items-center space-x-2">
                 <MessageSquare className="h-6 w-6 text-blue-600" />
-                <h1 className="text-xl font-bold text-gray-900">Compose Message</h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Compose Message</h1>
               </div>
             </div>
-            <LanguageToggle />
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
+              <LanguageToggle />
+            </div>
           </div>
         </div>
       </header>
