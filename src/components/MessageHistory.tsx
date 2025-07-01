@@ -5,16 +5,16 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
+import { MessageSquare, Calendar, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface Message {
+interface MessageHistoryItem {
   id: string;
-  message_text: string;
-  scheduled_date: string;
-  status: string;
-  message_type: string | null;
-  recipient_count: number;
+  message_title: string | null;
+  message_body: string | null;
+  message_text: string | null;
+  customer_count: number;
+  sent_at: string;
   created_at: string;
 }
 
@@ -22,7 +22,7 @@ const MessageHistory = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,16 +34,16 @@ const MessageHistory = () => {
 
     try {
       const { data, error } = await supabase
-        .from('messages')
+        .from('message_history')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+        .order('sent_at', { ascending: false })
         .limit(10);
 
       if (error) throw error;
       setMessages(data || []);
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error fetching message history:', error);
       toast({
         title: "Error",
         description: "Failed to load message history",
@@ -54,31 +54,16 @@ const MessageHistory = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Sent':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'Failed':
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-orange-600" />;
-    }
-  };
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'Sent':
-        return 'default';
-      case 'Failed':
-        return 'destructive';
-      default:
-        return 'secondary';
-    }
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const getMessageContent = (message: MessageHistoryItem) => {
+    if (message.message_title && message.message_body) {
+      return `${message.message_title}: ${message.message_body}`;
+    }
+    return message.message_text || 'No message content';
   };
 
   if (loading) {
@@ -87,7 +72,7 @@ const MessageHistory = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <MessageSquare className="h-5 w-5 mr-2" />
-            {t('messageHistory')}
+            Message History
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -104,40 +89,32 @@ const MessageHistory = () => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <MessageSquare className="h-5 w-5 mr-2" />
-          {t('messageHistory')}
+          Message History
         </CardTitle>
-        <CardDescription>{t('yourRecentMessages')}</CardDescription>
+        <CardDescription>Your recent sent messages and their delivery status</CardDescription>
       </CardHeader>
       <CardContent>
         {messages.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>{t('noMessagesYet')}</p>
+            <p>No messages sent yet. Send your first message to get started!</p>
           </div>
         ) : (
           <div className="space-y-4">
             {messages.map((message) => (
-              <div key={message.id} className="flex items-start justify-between p-4 border rounded-lg">
+              <div key={message.id} className="flex items-start justify-between p-4 border dark:border-gray-700 rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    {getStatusIcon(message.status)}
-                    <Badge variant={getStatusBadgeVariant(message.status)}>
-                      {t(message.status.toLowerCase())}
-                    </Badge>
-                    {message.message_type && (
-                      <Badge variant="outline">{message.message_type}</Badge>
-                    )}
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <Badge variant="default">Sent</Badge>
                   </div>
-                  <p className="text-sm mb-2 line-clamp-2">{message.message_text}</p>
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <p className="text-sm mb-2 line-clamp-2">{getMessageContent(message)}</p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {message.status === 'Sent' 
-                        ? `${t('sentOn')} ${formatDate(message.scheduled_date)}`
-                        : `${t('scheduledFor')} ${formatDate(message.scheduled_date)}`
-                      }
+                      Sent on {formatDate(message.sent_at)}
                     </span>
-                    <span>{message.recipient_count} {t('recipients')}</span>
+                    <span>{message.customer_count} recipients</span>
                   </div>
                 </div>
               </div>

@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import LanguageToggle from "@/components/LanguageToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const PaymentInstructions = () => {
   const { user, loading } = useAuth();
@@ -21,10 +22,10 @@ const PaymentInstructions = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading...</p>
         </div>
       </div>
     );
@@ -137,9 +138,9 @@ const PaymentInstructions = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -151,10 +152,13 @@ const PaymentInstructions = () => {
               </Link>
               <div className="flex items-center space-x-2">
                 <CreditCard className="h-6 w-6 text-blue-600" />
-                <h1 className="text-xl font-bold text-gray-900">Payment Instructions</h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Payment Instructions</h1>
               </div>
             </div>
-            <LanguageToggle />
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
+              <LanguageToggle />
+            </div>
           </div>
         </div>
       </header>
@@ -162,8 +166,8 @@ const PaymentInstructions = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Subscription Plans */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-center mb-2">Choose Your Plan</h2>
-          <p className="text-gray-600 text-center mb-8">Select the subscription plan that works best for you</p>
+          <h2 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-white">Choose Your Plan</h2>
+          <p className="text-gray-600 dark:text-gray-300 text-center mb-8">Select the subscription plan that works best for you</p>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {plans.map((plan) => (
@@ -173,7 +177,7 @@ const PaymentInstructions = () => {
                   <CardDescription className="text-3xl font-bold text-blue-600">
                     {plan.price} <span className="text-sm font-normal">/{plan.duration}</span>
                   </CardDescription>
-                  <p className="text-sm text-gray-600">{plan.description}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{plan.description}</p>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 mb-6">
@@ -207,40 +211,40 @@ const PaymentInstructions = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2 text-blue-800">Send payment to:</h3>
-                <p className="text-2xl font-mono text-blue-600 font-bold">+250 783 969 329</p>
-                <p className="text-sm text-blue-600 mt-1">MTN Mobile Money</p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h3 className="font-semibold mb-2 text-blue-800 dark:text-blue-200">Send payment to:</h3>
+                <p className="text-2xl font-mono text-blue-600 dark:text-blue-400 font-bold">+250 783 969 329</p>
+                <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">MTN Mobile Money</p>
               </div>
               
               <div className="space-y-3">
                 <div className="flex items-start space-x-3">
-                  <div className="bg-blue-100 rounded-full p-1 mt-1">
-                    <span className="block w-2 h-2 bg-blue-600 rounded-full"></span>
+                  <div className="bg-blue-100 dark:bg-blue-800 rounded-full p-1 mt-1">
+                    <span className="block w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></span>
                   </div>
                   <div>
                     <p className="font-medium">Step 1: Select Your Plan</p>
-                    <p className="text-sm text-gray-600">Choose your preferred subscription plan above</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Choose your preferred subscription plan above</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="bg-blue-100 rounded-full p-1 mt-1">
-                    <span className="block w-2 h-2 bg-blue-600 rounded-full"></span>
+                  <div className="bg-blue-100 dark:bg-blue-800 rounded-full p-1 mt-1">
+                    <span className="block w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></span>
                   </div>
                   <div>
                     <p className="font-medium">Step 2: Send Payment</p>
-                    <p className="text-sm text-gray-600">Transfer the exact amount to +250 783 969 329</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Transfer the exact amount to +250 783 969 329</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="bg-blue-100 rounded-full p-1 mt-1">
-                    <span className="block w-2 h-2 bg-blue-600 rounded-full"></span>
+                  <div className="bg-blue-100 dark:bg-blue-800 rounded-full p-1 mt-1">
+                    <span className="block w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></span>
                   </div>
                   <div>
                     <p className="font-medium">Step 3: Confirm Payment</p>
-                    <p className="text-sm text-gray-600">Click "I Have Paid" button to notify our admin</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Click "I Have Paid" button to notify our admin</p>
                   </div>
                 </div>
               </div>
@@ -253,22 +257,22 @@ const PaymentInstructions = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               {selectedPlan ? (
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-green-800 mb-2">Selected Plan:</h3>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <h3 className="font-semibold text-green-800 dark:text-green-200 mb-2">Selected Plan:</h3>
                   <p className="text-lg font-medium">{plans.find(p => p.id === selectedPlan)?.name}</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {plans.find(p => p.id === selectedPlan)?.price}
                   </p>
                 </div>
               ) : (
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                   <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600">Please select a plan above</p>
+                  <p className="text-gray-600 dark:text-gray-300">Please select a plan above</p>
                 </div>
               )}
               
               <div className="border-t pt-4">
-                <p className="mb-4 text-sm text-gray-600">
+                <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
                   After sending payment to +250 783 969 329, click the button below to notify our admin for verification.
                 </p>
                 
@@ -281,7 +285,7 @@ const PaymentInstructions = () => {
                   {isSubmitting ? "Submitting..." : "I Have Paid"}
                 </Button>
                 
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
                   Your subscription will be activated after admin verification
                 </p>
               </div>

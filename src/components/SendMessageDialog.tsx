@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Send } from "lucide-react";
 
-const SendMessageDialog = () => {
+const SendMessageDialog = () => {  
   const { user } = useAuth();
   const { toast } = useToast();
   const [message, setMessage] = useState("");
@@ -17,19 +17,36 @@ const SendMessageDialog = () => {
   const [isSending, setIsSending] = useState(false);
 
   const handleSendMessage = async () => {
-    if (!user || !message.trim()) return;
+    if (!user || !message.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please enter a message to send.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsSending(true);
     try {
       // Get customer count
       const { data: customers, error: customersError } = await supabase
         .from('customers')
-        .select('id')
+        .select('id, name, phone_number')
         .eq('user_id', user.id);
 
       if (customersError) throw customersError;
 
       const customerCount = customers?.length || 0;
+
+      if (customerCount === 0) {
+        toast({
+          title: "No customers found",
+          description: "Please add customers before sending messages.",
+          variant: "destructive"
+        });
+        setIsSending(false);
+        return;
+      }
 
       // Save to message history
       const { error: historyError } = await supabase
@@ -42,6 +59,14 @@ const SendMessageDialog = () => {
         });
 
       if (historyError) throw historyError;
+
+      // Update last_message_sent for all customers
+      const { error: updateError } = await supabase
+        .from('customers')
+        .update({ last_message_sent: new Date().toISOString() })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
 
       toast({
         title: "✅ Message sent successfully!",
