@@ -48,7 +48,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session first
+    console.log('Setting up auth listener...');
+    
+    // Listen for auth changes first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
+      
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || '',
+          subscription: 'basic'
+        });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    // Then check for existing session
     const checkSession = async () => {
       console.log('Checking for existing session...');
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -66,23 +85,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     checkSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session?.user?.email);
-      
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || '',
-          subscription: 'basic'
-        });
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -124,7 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: email.trim().toLowerCase(),
         password,
         options: {
-          data: { name: name.trim() }
+          data: { name: name.trim() },
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
       
@@ -144,8 +147,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     console.log('Logging out...');
-    await supabase.auth.signOut();
-    setUser(null);
+    setLoading(true);
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

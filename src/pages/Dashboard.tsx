@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Plus, Users, Calendar, Settings, LogOut, History, Send } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import CustomerManager from "@/components/CustomerManager";
 import MessageHistory from "@/components/MessageHistory";
 import LanguageToggle from "@/components/LanguageToggle";
@@ -15,6 +16,13 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+
+  // Fix navigation warning by using useEffect
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const handleLogout = () => {
     logout();
@@ -39,8 +47,8 @@ const Dashboard = () => {
     }
   ];
 
+  // Don't render if user is not authenticated
   if (!user) {
-    navigate("/login");
     return null;
   }
 

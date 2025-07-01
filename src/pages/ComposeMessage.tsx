@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import MessageComposer from "@/components/MessageComposer";
 import LanguageToggle from "@/components/LanguageToggle";
 
@@ -12,8 +13,15 @@ const ComposeMessage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
+  // Fix navigation by using useEffect
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  // Don't render if user is not authenticated
   if (!user) {
-    navigate("/login");
     return null;
   }
 

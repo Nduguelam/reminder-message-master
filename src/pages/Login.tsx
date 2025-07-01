@@ -20,7 +20,7 @@ const Login = () => {
   useEffect(() => {
     if (user && !loading) {
       console.log('User is logged in, redirecting to dashboard');
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -42,7 +42,7 @@ const Login = () => {
         title: "Welcome back!",
         description: "You've successfully logged in.",
       });
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (error: any) {
       console.error('Login error in component:', error);
       
@@ -98,6 +98,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
+                autoComplete="email"
               />
             </div>
             <div className="space-y-2">
@@ -110,6 +111,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
+                autoComplete="current-password"
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
