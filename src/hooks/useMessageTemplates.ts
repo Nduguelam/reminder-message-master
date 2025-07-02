@@ -31,7 +31,20 @@ export const useMessageTemplates = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTemplates(data || []);
+      
+      // Transform the data to match our interface
+      const transformedData = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        content: item.content,
+        category: item.category || 'general',
+        variables: Array.isArray(item.variables) ? item.variables : [],
+        is_active: item.is_active,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+      }));
+      
+      setTemplates(transformedData);
     } catch (error) {
       console.error('Error fetching templates:', error);
     } finally {
@@ -53,8 +66,21 @@ export const useMessageTemplates = () => {
         .single();
 
       if (error) throw error;
-      setTemplates(prev => [data, ...prev]);
-      return data;
+      
+      // Transform the returned data
+      const transformedData = {
+        id: data.id,
+        name: data.name,
+        content: data.content,
+        category: data.category || 'general',
+        variables: Array.isArray(data.variables) ? data.variables : [],
+        is_active: data.is_active,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      };
+      
+      setTemplates(prev => [transformedData, ...prev]);
+      return transformedData;
     } catch (error) {
       console.error('Error creating template:', error);
       throw error;
@@ -71,8 +97,21 @@ export const useMessageTemplates = () => {
         .single();
 
       if (error) throw error;
-      setTemplates(prev => prev.map(t => t.id === id ? data : t));
-      return data;
+      
+      // Transform the returned data
+      const transformedData = {
+        id: data.id,
+        name: data.name,
+        content: data.content,
+        category: data.category || 'general',
+        variables: Array.isArray(data.variables) ? data.variables : [],
+        is_active: data.is_active,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      };
+      
+      setTemplates(prev => prev.map(t => t.id === id ? transformedData : t));
+      return transformedData;
     } catch (error) {
       console.error('Error updating template:', error);
       throw error;
