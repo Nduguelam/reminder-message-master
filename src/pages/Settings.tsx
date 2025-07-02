@@ -18,7 +18,7 @@ import LanguageToggle from "@/components/LanguageToggle";
 
 const Settings = () => {
   const { user, logout } = useAuth();
-  const { t, language, setLanguage } = useLanguage();
+  const { t, language } = useLanguage();
   const { isDark } = useTheme();
   const { preferences, updatePreferences, loading } = useUserPreferences();
   const { toast } = useToast();

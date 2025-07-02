@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface LanguageContextType {
   language: 'en' | 'rw';
   toggleLanguage: () => void;
+  setLanguage: (lang: 'en' | 'rw') => void;
   t: (key: string) => string;
 }
 
@@ -245,19 +246,24 @@ const translations = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<'en' | 'rw'>('en');
+  const [language, setLanguageState] = useState<'en' | 'rw'>('en');
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') as 'en' | 'rw';
     if (savedLanguage) {
-      setLanguage(savedLanguage);
+      setLanguageState(savedLanguage);
     }
   }, []);
 
   const toggleLanguage = () => {
     const newLanguage = language === 'en' ? 'rw' : 'en';
-    setLanguage(newLanguage);
+    setLanguageState(newLanguage);
     localStorage.setItem('language', newLanguage);
+  };
+
+  const setLanguage = (lang: 'en' | 'rw') => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
   };
 
   const t = (key: string): string => {
@@ -265,7 +271,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, toggleLanguage, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
