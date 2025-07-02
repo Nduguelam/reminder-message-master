@@ -1,9 +1,10 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Plus, Users, Calendar, Settings, LogOut, History, Send, FileText, BarChart, Upload } from "lucide-react";
+import { MessageSquare, Plus, Users, Calendar, Settings, LogOut, History, Send, FileText, BarChart, Upload, CreditCard } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import CustomerManager from "@/components/CustomerManager";
@@ -11,6 +12,7 @@ import MessageHistory from "@/components/MessageHistory";
 import LanguageToggle from "@/components/LanguageToggle";
 import CustomerTable from "@/components/CustomerTable";
 import ThemeToggle from "@/components/ThemeToggle";
+import SubscriptionStatus from "@/components/SubscriptionStatus";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -76,8 +78,23 @@ const Dashboard = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Subscription Status - Prominent Section */}
+        <div className="mb-8">
+          <SubscriptionStatus />
+        </div>
+
         {/* Quick Actions */}
         <div className="grid md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+          <Link to="/payment">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer border-2 border-blue-200 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-800">
+              <CardContent className="p-6 text-center">
+                <CreditCard className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100">Subscription</h3>
+                <p className="text-sm text-blue-700 dark:text-blue-300">Manage your plan</p>
+              </CardContent>
+            </Card>
+          </Link>
+
           <Link to="/compose-message">
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
