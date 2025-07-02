@@ -3,7 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Plus, Users, Calendar, Settings, LogOut, History, Send } from "lucide-react";
+import { MessageSquare, Plus, Users, Calendar, Settings, LogOut, History, Send, FileText, BarChart, Upload } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import CustomerManager from "@/components/CustomerManager";
@@ -77,7 +77,7 @@ const Dashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-5 gap-4 mb-8">
+        <div className="grid md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
           <Link to="/compose-message">
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
@@ -98,30 +98,42 @@ const Dashboard = () => {
             </Card>
           </Link>
 
+          <Link to="/templates">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <FileText className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                <h3 className="font-semibold">Templates</h3>
+                <p className="text-sm text-gray-600">Create reusable messages</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/analytics">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <BarChart className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                <h3 className="font-semibold">Analytics</h3>
+                <p className="text-sm text-gray-600">View performance insights</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/import-export">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <Upload className="h-8 w-8 text-teal-600 mx-auto mb-2" />
+                <h3 className="font-semibold">Import/Export</h3>
+                <p className="text-sm text-gray-600">Manage customer data</p>
+              </CardContent>
+            </Card>
+          </Link>
+
           <Link to="/message-history">
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
                 <History className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <h3 className="font-semibold">Message History</h3>
                 <p className="text-sm text-gray-600">View all sent messages</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-6 text-center">
-              <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <h3 className="font-semibold">Schedule</h3>
-              <p className="text-sm text-gray-600">{t('viewAllCampaigns')}</p>
-            </CardContent>
-          </Card>
-
-          <Link to="/payment">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-6 text-center">
-                <Settings className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold">Payment</h3>
-                <p className="text-sm text-gray-600">Upgrade your plan</p>
               </CardContent>
             </Card>
           </Link>

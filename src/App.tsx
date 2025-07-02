@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,9 @@ import AdminPanel from "./pages/AdminPanel";
 import MessageHistoryPage from "./pages/MessageHistoryPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Templates from "./pages/Templates";
+import Analytics from "./pages/Analytics";
+import ImportExport from "./pages/ImportExport";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +44,9 @@ const App = () => (
                 <Route path="/message-history" element={<MessageHistoryPage />} />
                 <Route path="/payment" element={<PaymentInstructions />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/templates" element={<Templates />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/import-export" element={<ImportExport />} />
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

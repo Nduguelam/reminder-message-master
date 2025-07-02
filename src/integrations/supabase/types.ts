@@ -78,6 +78,48 @@ export type Database = {
         }
         Relationships: []
       }
+      message_analytics: {
+        Row: {
+          created_at: string
+          date: string
+          delivered_count: number | null
+          id: string
+          message_id: string | null
+          read_count: number | null
+          response_count: number | null
+          sent_count: number | null
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          delivered_count?: number | null
+          id?: string
+          message_id?: string | null
+          read_count?: number | null
+          response_count?: number | null
+          sent_count?: number | null
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          delivered_count?: number | null
+          id?: string
+          message_id?: string | null
+          read_count?: number | null
+          response_count?: number | null
+          sent_count?: number | null
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_history: {
         Row: {
           created_at: string
@@ -170,6 +212,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      message_templates: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+          variables: Json | null
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+          variables?: Json | null
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+          variables?: Json | null
+        }
+        Relationships: []
       }
       messages: {
         Row: {
