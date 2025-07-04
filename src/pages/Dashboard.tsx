@@ -1,10 +1,9 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Plus, Users, Calendar, Settings, LogOut, History, Send, FileText, BarChart, Upload, CreditCard } from "lucide-react";
+import { MessageSquare, Plus, Users, Calendar, Settings, LogOut, History, Send, FileText, BarChart, Upload, CreditCard, Clock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import CustomerManager from "@/components/CustomerManager";
@@ -13,11 +12,15 @@ import LanguageToggle from "@/components/LanguageToggle";
 import CustomerTable from "@/components/CustomerTable";
 import ThemeToggle from "@/components/ThemeToggle";
 import SubscriptionStatus from "@/components/SubscriptionStatus";
+import { useScheduledMessages } from "@/hooks/useScheduledMessages";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { scheduledMessages, loading: scheduledLoading, cancelScheduledMessage } = useScheduledMessages();
+  const { toast } = useToast();
 
   // Fix navigation warning by using useEffect
   useEffect(() => {
@@ -31,23 +34,41 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  // Mock data for demonstration
-  const upcomingMessages = [
-    {
-      id: 1,
-      type: "Flash Sale",
-      message: "🔥 Flash Sale Alert! 50% off all items today only!",
-      scheduledFor: "Today, 2:00 PM",
-      customerCount: 125
-    },
-    {
-      id: 2,
-      type: "Holiday Greeting", 
-      message: "Happy holidays from our family to yours! 🎄",
-      scheduledFor: "Dec 25, 9:00 AM",
-      customerCount: 200
+  const formatScheduledDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = date.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return `Today, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    } else if (diffDays === 1) {
+      return `Tomorrow, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    } else {
+      return date.toLocaleString([], { 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
     }
-  ];
+  };
+
+  const handleCancelMessage = async (id: string) => {
+    try {
+      await cancelScheduledMessage(id);
+      toast({
+        title: "Message cancelled",
+        description: "The scheduled message has been cancelled successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to cancel the message. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Don't render if user is not authenticated
   if (!user) {
@@ -193,28 +214,60 @@ const Dashboard = () => {
           <MessageHistory />
         </div>
 
-        {/* Upcoming Messages */}
+        {/* Upcoming Scheduled Messages */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>{t('upcomingScheduledMessages')}</CardTitle>
-            <CardDescription>{t('messagesReadyToBeSent')}</CardDescription>
+            <CardDescription>
+              {scheduledMessages.length > 0 
+                ? `${scheduledMessages.length} message${scheduledMessages.length !== 1 ? 's' : ''} scheduled for delivery`
+                : 'No messages currently scheduled'
+              }
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {upcomingMessages.map((message) => (
-                <div key={message.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="outline">{message.type}</Badge>
-                      <span className="text-sm text-gray-600">{message.scheduledFor}</span>
+            {scheduledLoading ? (
+              <div className="text-center py-4 text-gray-500">Loading scheduled messages...</div>
+            ) : scheduledMessages.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <p>No scheduled messages yet.</p>
+                <p className="text-sm">Messages you schedule will appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {scheduledMessages.map((message) => (
+                  <div key={message.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="text-blue-600 border-blue-200">
+                          Scheduled
+                        </Badge>
+                        <span className="text-sm text-gray-600 dark:text-gray-300">
+                          {formatScheduledDate(message.scheduled_for)}
+                        </span>
+                      </div>
+                      <h4 className="font-medium mb-1">{message.message_title}</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 line-clamp-2">
+                        {message.message_body}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {message.customer_count} {t('recipients')}
+                      </p>
                     </div>
-                    <p className="text-sm mb-1">{message.message}</p>
-                    <p className="text-xs text-gray-500">{message.customerCount} {t('recipients')}</p>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleCancelMessage(message.id)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                  <Button size="sm" variant="outline">{t('edit')}</Button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

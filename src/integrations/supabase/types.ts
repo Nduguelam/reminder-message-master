@@ -341,6 +341,45 @@ export type Database = {
           },
         ]
       }
+      scheduled_messages: {
+        Row: {
+          created_at: string
+          customer_count: number
+          customer_ids: Json
+          id: string
+          message_body: string
+          message_title: string
+          scheduled_for: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_count?: number
+          customer_ids?: Json
+          id?: string
+          message_body: string
+          message_title: string
+          scheduled_for: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_count?: number
+          customer_ids?: Json
+          id?: string
+          message_body?: string
+          message_title?: string
+          scheduled_for?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string
