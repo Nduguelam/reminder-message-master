@@ -40,7 +40,9 @@ export const useScheduledMessages = () => {
         message_body: item.message_body,
         scheduled_for: item.scheduled_for,
         status: item.status as 'scheduled' | 'sent' | 'cancelled',
-        customer_ids: Array.isArray(item.customer_ids) ? item.customer_ids : [],
+        customer_ids: Array.isArray(item.customer_ids) 
+          ? (item.customer_ids as string[]).filter(id => typeof id === 'string')
+          : [],
         customer_count: item.customer_count,
         created_at: item.created_at,
         updated_at: item.updated_at,
@@ -76,7 +78,9 @@ export const useScheduledMessages = () => {
         message_body: data.message_body,
         scheduled_for: data.scheduled_for,
         status: data.status as 'scheduled' | 'sent' | 'cancelled',
-        customer_ids: Array.isArray(data.customer_ids) ? data.customer_ids : [],
+        customer_ids: Array.isArray(data.customer_ids) 
+          ? (data.customer_ids as string[]).filter(id => typeof id === 'string')
+          : [],
         customer_count: data.customer_count,
         created_at: data.created_at,
         updated_at: data.updated_at,
