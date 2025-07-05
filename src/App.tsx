@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import Templates from "./pages/Templates";
 import Analytics from "./pages/Analytics";
 import ImportExport from "./pages/ImportExport";
+import GovernmentServices from "./pages/GovernmentServices";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,7 @@ const App = () => (
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/import-export" element={<ImportExport />} />
+                <Route path="/government-services" element={<GovernmentServices />} />
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
