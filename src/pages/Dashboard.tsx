@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -113,6 +112,16 @@ const Dashboard = () => {
                 <CreditCard className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <h3 className="font-semibold text-blue-900 dark:text-blue-100">Subscription</h3>
                 <p className="text-sm text-blue-700 dark:text-blue-300">Manage your plan</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/business-idea-generator">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer border-2 border-yellow-400 bg-yellow-50/50 dark:bg-yellow-950/20 dark:border-yellow-400">
+              <CardContent className="p-6 text-center">
+                <MessageSquare className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
+                <h3 className="font-semibold text-yellow-900 dark:text-yellow-100">Business Ideas</h3>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300">AI-powered suggestions</p>
               </CardContent>
             </Card>
           </Link>
