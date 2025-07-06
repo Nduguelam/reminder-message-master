@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, Clock, DollarSign, User, Briefcase } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { CheckCircle, Clock, DollarSign, User, Briefcase, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Task {
@@ -65,6 +69,13 @@ const AgentTaskQueue = () => {
     }
   };
 
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isSubmitWorkOpen, setIsSubmitWorkOpen] = useState(false);
+  const [workData, setWorkData] = useState({
+    result_file_url: '',
+    agent_notes: ''
+  });
+
   const markTaskAsDone = async (taskId: string) => {
     try {
       const { error } = await supabase
@@ -89,6 +100,41 @@ const AgentTaskQueue = () => {
       toast({
         title: "Error",
         description: "Failed to mark task as done. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const submitWorkForReview = async () => {
+    if (!selectedTask) return;
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'submitted_for_review',
+          completed_at: new Date().toISOString(),
+          result_file_url: workData.result_file_url,
+          agent_notes: workData.agent_notes
+        })
+        .eq('id', selectedTask.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Work Submitted",
+        description: "Your work has been submitted for admin review.",
+      });
+
+      setIsSubmitWorkOpen(false);
+      setSelectedTask(null);
+      setWorkData({ result_file_url: '', agent_notes: '' });
+      fetchTasks();
+    } catch (error) {
+      console.error('Error submitting work:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit work. Please try again.",
         variant: "destructive"
       });
     }
@@ -207,9 +253,59 @@ const AgentTaskQueue = () => {
                       <span className="text-sm text-muted-foreground">
                         Assigned: {new Date(task.created_at).toLocaleDateString()}
                       </span>
-                      <Button onClick={() => markTaskAsDone(task.id)}>
-                        Mark as Done
-                      </Button>
+                      <div className="space-x-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => markTaskAsDone(task.id)}
+                        >
+                          Quick Complete
+                        </Button>
+                        <Dialog open={isSubmitWorkOpen} onOpenChange={setIsSubmitWorkOpen}>
+                          <DialogTrigger asChild>
+                            <Button onClick={() => setSelectedTask(task)}>
+                              <Upload className="h-4 w-4 mr-2" />
+                              Submit Work
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Submit Work for Review</DialogTitle>
+                              <DialogDescription>
+                                Upload your completed work for admin review
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="fileUrl">Result File URL</Label>
+                                <Input
+                                  id="fileUrl"
+                                  value={workData.result_file_url}
+                                  onChange={(e) => setWorkData({...workData, result_file_url: e.target.value})}
+                                  placeholder="https://drive.google.com/file/d/... or similar"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="notes">Work Notes</Label>
+                                <Textarea
+                                  id="notes"
+                                  value={workData.agent_notes}
+                                  onChange={(e) => setWorkData({...workData, agent_notes: e.target.value})}
+                                  placeholder="Describe the work completed, any challenges, etc."
+                                  rows={3}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setIsSubmitWorkOpen(false)}>
+                                Cancel
+                              </Button>
+                              <Button onClick={submitWorkForReview}>
+                                Submit for Review
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
                   </div>
                 ))}

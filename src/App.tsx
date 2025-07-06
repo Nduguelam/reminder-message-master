@@ -26,6 +26,8 @@ import BusinessIdeaGenerator from "./pages/BusinessIdeaGenerator";
 import Subscription from "./pages/Subscription";
 import AgentTaskQueue from "./pages/AgentTaskQueue";
 import AdminPayout from "./pages/AdminPayout";
+import AdminRequestQueue from "./pages/AdminRequestQueue";
+import AdminTaskReview from "./pages/AdminTaskReview";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,8 @@ const App = () => (
                 <Route path="/business-idea-generator" element={<BusinessIdeaGenerator />} />
                 <Route path="/agent-tasks" element={<AgentTaskQueue />} />
                 <Route path="/admin-payout" element={<AdminPayout />} />
+                <Route path="/admin-requests" element={<AdminRequestQueue />} />
+                <Route path="/admin-task-review" element={<AdminTaskReview />} />
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

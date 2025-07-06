@@ -570,6 +570,7 @@ export type Database = {
         Row: {
           admin_id: string | null
           agent_id: string | null
+          agent_notes: string | null
           client_name: string
           commission_rate: number | null
           completed_at: string | null
@@ -577,6 +578,8 @@ export type Database = {
           description: string | null
           id: string
           price: number
+          result_file_url: string | null
+          service_request_id: string | null
           service_type: string
           status: Database["public"]["Enums"]["task_status"]
           title: string
@@ -585,6 +588,7 @@ export type Database = {
         Insert: {
           admin_id?: string | null
           agent_id?: string | null
+          agent_notes?: string | null
           client_name: string
           commission_rate?: number | null
           completed_at?: string | null
@@ -592,6 +596,8 @@ export type Database = {
           description?: string | null
           id?: string
           price: number
+          result_file_url?: string | null
+          service_request_id?: string | null
           service_type: string
           status?: Database["public"]["Enums"]["task_status"]
           title: string
@@ -600,6 +606,7 @@ export type Database = {
         Update: {
           admin_id?: string | null
           agent_id?: string | null
+          agent_notes?: string | null
           client_name?: string
           commission_rate?: number | null
           completed_at?: string | null
@@ -607,12 +614,22 @@ export type Database = {
           description?: string | null
           id?: string
           price?: number
+          result_file_url?: string | null
+          service_request_id?: string | null
           service_type?: string
           status?: Database["public"]["Enums"]["task_status"]
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_preferences: {
         Row: {
@@ -673,7 +690,13 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
-      task_status: "pending" | "approved" | "completed" | "cancelled"
+        | "converted_to_task"
+      task_status:
+        | "pending"
+        | "approved"
+        | "completed"
+        | "cancelled"
+        | "submitted_for_review"
       user_role: "admin" | "agent" | "client"
     }
     CompositeTypes: {
@@ -796,8 +819,15 @@ export const Constants = {
         "in_progress",
         "completed",
         "cancelled",
+        "converted_to_task",
       ],
-      task_status: ["pending", "approved", "completed", "cancelled"],
+      task_status: [
+        "pending",
+        "approved",
+        "completed",
+        "cancelled",
+        "submitted_for_review",
+      ],
       user_role: ["admin", "agent", "client"],
     },
   },
