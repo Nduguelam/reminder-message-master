@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agent_payouts: {
+        Row: {
+          agent_id: string
+          created_at: string
+          id: string
+          paid_at: string | null
+          status: string
+          tasks_completed: number
+          total_commission: number
+          updated_at: string
+          week_end: string
+          week_start: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          tasks_completed?: number
+          total_commission?: number
+          updated_at?: string
+          week_end: string
+          week_start: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          tasks_completed?: number
+          total_commission?: number
+          updated_at?: string
+          week_end?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
       customer_group_memberships: {
         Row: {
           created_at: string
@@ -446,6 +485,48 @@ export type Database = {
         }
         Relationships: []
       }
+      service_requests: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          document_details: string | null
+          file_url: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          phone_number: string
+          service_type: string
+          status: Database["public"]["Enums"]["service_request_status"]
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          document_details?: string | null
+          file_url?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone_number: string
+          service_type: string
+          status?: Database["public"]["Enums"]["service_request_status"]
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          document_details?: string | null
+          file_url?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone_number?: string
+          service_type?: string
+          status?: Database["public"]["Enums"]["service_request_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -485,6 +566,54 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          admin_id: string | null
+          agent_id: string | null
+          client_name: string
+          commission_rate: number | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          id: string
+          price: number
+          service_type: string
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_id?: string | null
+          agent_id?: string | null
+          client_name: string
+          commission_rate?: number | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          price: number
+          service_type: string
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string | null
+          agent_id?: string | null
+          client_name?: string
+          commission_rate?: number | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          price?: number
+          service_type?: string
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string
@@ -498,6 +627,7 @@ export type Database = {
           timezone: string | null
           updated_at: string
           user_id: string
+          user_role: Database["public"]["Enums"]["user_role"] | null
         }
         Insert: {
           created_at?: string
@@ -511,6 +641,7 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
           user_id: string
+          user_role?: Database["public"]["Enums"]["user_role"] | null
         }
         Update: {
           created_at?: string
@@ -524,6 +655,7 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
           user_id?: string
+          user_role?: Database["public"]["Enums"]["user_role"] | null
         }
         Relationships: []
       }
@@ -535,7 +667,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      service_request_status:
+        | "pending"
+        | "approved"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+      task_status: "pending" | "approved" | "completed" | "cancelled"
+      user_role: "admin" | "agent" | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -650,6 +789,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      service_request_status: [
+        "pending",
+        "approved",
+        "in_progress",
+        "completed",
+        "cancelled",
+      ],
+      task_status: ["pending", "approved", "completed", "cancelled"],
+      user_role: ["admin", "agent", "client"],
+    },
   },
 } as const

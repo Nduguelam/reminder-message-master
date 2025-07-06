@@ -23,6 +23,9 @@ import Analytics from "./pages/Analytics";
 import ImportExport from "./pages/ImportExport";
 import GovernmentServices from "./pages/GovernmentServices";
 import BusinessIdeaGenerator from "./pages/BusinessIdeaGenerator";
+import Subscription from "./pages/Subscription";
+import AgentTaskQueue from "./pages/AgentTaskQueue";
+import AdminPayout from "./pages/AdminPayout";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +54,8 @@ const App = () => (
                 <Route path="/import-export" element={<ImportExport />} />
                 <Route path="/government-services" element={<GovernmentServices />} />
                 <Route path="/business-idea-generator" element={<BusinessIdeaGenerator />} />
+                <Route path="/agent-tasks" element={<AgentTaskQueue />} />
+                <Route path="/admin-payout" element={<AdminPayout />} />
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

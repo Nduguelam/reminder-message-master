@@ -1,14 +1,31 @@
 
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, FileText, Building2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, FileText, Building2, Upload, CheckCircle, Phone, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const GovernmentServices = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Form state for client request
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phoneNumber: '',
+    serviceType: '',
+    documentDetails: '',
+    notes: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -18,6 +35,68 @@ const GovernmentServices = () => {
 
   const handleWhatsAppRedirect = (url: string) => {
     window.open(url, '_blank');
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmitRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    // Validate required fields
+    if (!formData.fullName || !formData.phoneNumber || !formData.serviceType) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from('service_requests')
+        .insert({
+          full_name: formData.fullName,
+          phone_number: formData.phoneNumber,
+          service_type: formData.serviceType,
+          document_details: formData.documentDetails,
+          notes: formData.notes,
+          client_id: user.id
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Submitted",
+        description: "Your service request has been submitted and will be reviewed by our admin team.",
+      });
+
+      // Reset form
+      setFormData({
+        fullName: '',
+        phoneNumber: '',
+        serviceType: '',
+        documentDetails: '',
+        notes: ''
+      });
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Failed to submit your request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!user) {
@@ -105,6 +184,115 @@ const GovernmentServices = () => {
               >
                 Request via WhatsApp
               </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Client Service Request Form */}
+        <div className="mt-12">
+          <Card className="border-2 border-blue-400 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold text-black dark:text-white flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 mr-2 text-blue-600" />
+                Submit Service Request
+              </CardTitle>
+              <CardDescription className="text-gray-700 dark:text-gray-300">
+                Fill out the form below to request government services. Our admin team will review and assign your request.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmitRequest} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName" className="flex items-center">
+                      <User className="h-4 w-4 mr-2" />
+                      Full Name *
+                    </Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={formData.fullName}
+                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber" className="flex items-center">
+                      <Phone className="h-4 w-4 mr-2" />
+                      Phone Number *
+                    </Label>
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      placeholder="e.g., +250 123 456 789"
+                      value={formData.phoneNumber}
+                      onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="serviceType" className="flex items-center">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Service Type *
+                  </Label>
+                  <Select value={formData.serviceType} onValueChange={(value) => handleInputChange('serviceType', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select the service you need" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="RRA Tax Declaration">RRA Tax Declaration</SelectItem>
+                      <SelectItem value="Irembo Birth Certificate">Irembo Birth Certificate</SelectItem>
+                      <SelectItem value="Irembo Marriage Certificate">Irembo Marriage Certificate</SelectItem>
+                      <SelectItem value="Irembo Passport Application">Irembo Passport Application</SelectItem>
+                      <SelectItem value="RDB Business Registration">RDB Business Registration</SelectItem>
+                      <SelectItem value="Other Government Service">Other Government Service</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="documentDetails" className="flex items-center">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Document Details
+                  </Label>
+                  <Textarea
+                    id="documentDetails"
+                    placeholder="Provide details about the documents you need (e.g., names, dates, specific requirements)"
+                    value={formData.documentDetails}
+                    onChange={(e) => handleInputChange('documentDetails', e.target.value)}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes" className="flex items-center">
+                    <Upload className="h-4 w-4 mr-2" />
+                    Additional Notes
+                  </Label>
+                  <Textarea
+                    id="notes"
+                    placeholder="Any additional information or special requests"
+                    value={formData.notes}
+                    onChange={(e) => handleInputChange('notes', e.target.value)}
+                    rows={2}
+                  />
+                </div>
+
+                <div className="text-center">
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8"
+                    size="lg"
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>
