@@ -14,6 +14,7 @@ import CreateMessage from "./pages/CreateMessage";
 import ComposeMessage from "./pages/ComposeMessage";
 import Customers from "./pages/Customers";
 import PaymentInstructions from "./pages/PaymentInstructions";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminPanel from "./pages/AdminPanel";
 import MessageHistoryPage from "./pages/MessageHistoryPage";
 import Settings from "./pages/Settings";
@@ -56,11 +57,13 @@ const App = () => (
                 <Route path="/import-export" element={<ImportExport />} />
                 <Route path="/government-services" element={<GovernmentServices />} />
                 <Route path="/business-idea-generator" element={<BusinessIdeaGenerator />} />
+                <Route path="/subscription" element={<Subscription />} />
                 <Route path="/agent-tasks" element={<AgentTaskQueue />} />
                 <Route path="/admin-payout" element={<AdminPayout />} />
                 <Route path="/admin-requests" element={<AdminRequestQueue />} />
                 <Route path="/admin-task-review" element={<AdminTaskReview />} />
-                <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin-panel" element={<AdminPanel />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AuthProvider>
