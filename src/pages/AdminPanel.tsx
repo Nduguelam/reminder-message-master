@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,12 +34,23 @@ interface UserPaymentStatus {
 
 const AdminPanel = () => {
   const { user, loading } = useAuth();
+  const { preferences, loading: preferencesLoading } = useUserPreferences();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([]);
   const [userPayments, setUserPayments] = useState<UserPaymentStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'transactions' | 'users'>('transactions');
+
+  // Check for admin role and redirect if not admin
+  useEffect(() => {
+    if (!loading && !preferencesLoading && user) {
+      if (preferences?.user_role !== 'admin') {
+        navigate('/');
+        return;
+      }
+    }
+  }, [user, preferences, loading, preferencesLoading, navigate]);
 
   useEffect(() => {
     fetchPendingTransactions();
@@ -207,7 +219,7 @@ const AdminPanel = () => {
       <Badge className="bg-red-100 text-red-800">Not Paid</Badge>;
   };
 
-  if (loading) {
+  if (loading || preferencesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -226,6 +238,20 @@ const AdminPanel = () => {
           <p className="text-gray-600 mb-4">You need to be logged in to access the admin panel.</p>
           <Button onClick={() => navigate("/login")}>
             Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (preferences?.user_role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-4">You don't have admin privileges to access this page.</p>
+          <Button onClick={() => navigate("/")}>
+            Go to Home
           </Button>
         </div>
       </div>

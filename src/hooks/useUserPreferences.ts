@@ -11,6 +11,7 @@ interface UserPreferences {
   marketing_emails: boolean;
   timezone: string;
   date_format: string;
+  user_role: 'admin' | 'agent' | 'client' | null;
 }
 
 export const useUserPreferences = () => {
