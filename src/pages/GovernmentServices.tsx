@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, FileText, Building2, Upload, CheckCircle, Phone, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { FileUpload } from "@/components/FileUpload";
 
 const GovernmentServices = () => {
   const { user } = useAuth();
@@ -25,6 +26,7 @@ const GovernmentServices = () => {
     documentDetails: '',
     notes: ''
   });
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -69,6 +71,7 @@ const GovernmentServices = () => {
           service_type: formData.serviceType,
           document_details: formData.documentDetails,
           notes: formData.notes,
+          file_urls: uploadedFiles,
           client_id: user.id
         });
 
@@ -87,6 +90,7 @@ const GovernmentServices = () => {
         documentDetails: '',
         notes: ''
       });
+      setUploadedFiles([]);
     } catch (error) {
       console.error('Error submitting request:', error);
       toast({
@@ -279,6 +283,19 @@ const GovernmentServices = () => {
                     value={formData.notes}
                     onChange={(e) => handleInputChange('notes', e.target.value)}
                     rows={2}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center">
+                    <Upload className="h-4 w-4 mr-2" />
+                    Attach Documents
+                  </Label>
+                  <FileUpload
+                    onFilesChange={setUploadedFiles}
+                    maxFiles={5}
+                    acceptedTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']}
+                    maxFileSize={10}
                   />
                 </div>
 
