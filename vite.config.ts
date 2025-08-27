@@ -1,4 +1,5 @@
 // vite.config.ts
+// @ts-nocheck
 import path from "path";
 import { defineConfig } from "vite";
 
@@ -18,6 +19,9 @@ export default defineConfig(async ({ mode }) => {
   }
 
   return {
+    server: {
+      port: 8080
+    },
     plugins,
     resolve: {
       alias: {
@@ -26,6 +30,9 @@ export default defineConfig(async ({ mode }) => {
     },
     optimizeDeps: {
       exclude: ["lovable-tagger"],
+    },
+    define: {
+      global: 'globalThis',
     },
   };
 });
