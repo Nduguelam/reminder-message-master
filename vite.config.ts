@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
   ].filter(Boolean),
   resolve: {
     alias: {
-      "@": new URL('./src', import.meta.url).pathname,
+      "@": "/src",
     },
   },
 }));
