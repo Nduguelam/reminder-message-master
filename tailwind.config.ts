@@ -61,6 +61,12 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Rwanda flag colors
+				rwanda: {
+					blue: 'hsl(var(--rwanda-blue))',
+					yellow: 'hsl(var(--rwanda-yellow))',
+					green: 'hsl(var(--rwanda-green))'
 				}
 			},
 			borderRadius: {
