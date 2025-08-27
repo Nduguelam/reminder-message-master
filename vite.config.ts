@@ -1,38 +1,19 @@
-// vite.config.ts
-// @ts-nocheck
 import path from "path";
 import { defineConfig } from "vite";
 
-export default defineConfig(async ({ mode }) => {
-  const plugins: any[] = [];
-
-  if (mode === "development") {
-    try {
-      const mod: any = await import("lovable-tagger");
-      const plugin = mod.default ?? mod.lovableTagger;
-      if (plugin) {
-        plugins.push(plugin());
-      }
-    } catch (err) {
-      console.warn("⚠️ lovable-tagger could not be loaded in dev mode:", err);
-    }
-  }
-
-  return {
-    server: {
-      port: 8080
+export default defineConfig({
+  server: {
+    port: 8080
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
-    plugins,
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "./src"),
-      },
-    },
-    optimizeDeps: {
-      exclude: ["lovable-tagger"],
-    },
-    define: {
-      global: 'globalThis',
-    },
-  };
+  },
+  optimizeDeps: {
+    exclude: ["lovable-tagger"],
+  },
+  define: {
+    global: 'globalThis',
+  },
 });
