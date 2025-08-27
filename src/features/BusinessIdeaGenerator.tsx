@@ -33,7 +33,10 @@ const BusinessIdeaGenerator = () => {
   }, [user, navigate]);
 
   const generateBusinessIdea = async () => {
+    console.log("Generate business idea called with:", { budget, businessType, location });
+    
     if (!budget || !businessType || !location) {
+      console.log("Missing required fields for business idea generation");
       toast({
         title: "Missing Information",
         description: "Please enter your budget, select a business type, and choose your location.",
@@ -43,10 +46,12 @@ const BusinessIdeaGenerator = () => {
     }
 
     setIsGenerating(true);
+    console.log("Starting business idea generation...");
     
     try {
       // Simulate AI generation with realistic business ideas based on budget and type
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      console.log("Business idea generation completed successfully");
       
       const budgetNum = parseInt(budget);
       const idea = generateIdeaBasedOnInputs(budgetNum, businessType);
