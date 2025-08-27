@@ -22,6 +22,7 @@ const BusinessIdeaGenerator = () => {
   const { toast } = useToast();
   const [budget, setBudget] = useState("");
   const [businessType, setBusinessType] = useState("");
+  const [location, setLocation] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [businessIdea, setBusinessIdea] = useState<BusinessIdea | null>(null);
 
@@ -32,10 +33,10 @@ const BusinessIdeaGenerator = () => {
   }, [user, navigate]);
 
   const generateBusinessIdea = async () => {
-    if (!budget || !businessType) {
+    if (!budget || !businessType || !location) {
       toast({
         title: "Missing Information",
-        description: "Please enter your budget and select a business type.",
+        description: "Please enter your budget, select a business type, and choose your location.",
         variant: "destructive"
       });
       return;
@@ -286,6 +287,22 @@ const BusinessIdeaGenerator = () => {
                   <SelectItem value="Services">Services</SelectItem>
                   <SelectItem value="Farming">Farming</SelectItem>
                   <SelectItem value="Tech">Tech</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                Select your district
+              </label>
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger className="border-yellow-400 focus:border-yellow-500">
+                  <SelectValue placeholder="Choose your district" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Gasabo">Gasabo</SelectItem>
+                  <SelectItem value="Kicukiro">Kicukiro</SelectItem>
+                  <SelectItem value="Nyarugenge">Nyarugenge</SelectItem>
                 </SelectContent>
               </Select>
             </div>
