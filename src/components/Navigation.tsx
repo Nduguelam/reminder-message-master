@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MessageSquare, Settings, LogOut, User } from "lucide-react";
+import { FaRegCommentDots, FaCog, FaSignOutAlt, FaUser } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
@@ -23,7 +23,7 @@ const Navigation = () => {
           {/* Logo/Brand */}
           <div className="flex items-center space-x-4">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <MessageSquare className="h-8 w-8 text-blue-600" />
+              <FaRegCommentDots className="h-8 w-8 text-blue-600 mr-2" />
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">MessageHub</h1>
             </Link>
           </div>
@@ -110,19 +110,19 @@ const Navigation = () => {
                 <DropdownMenuSeparator />
                 <Link to="/settings">
                   <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
+                    <FaCog className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
                 </Link>
                 <Link to="/payment">
                   <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
+                    <FaUser className="mr-2 h-4 w-4" />
                     <span>Subscription</span>
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <FaSignOutAlt className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
