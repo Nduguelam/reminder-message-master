@@ -7,9 +7,11 @@ import { MessageSquare, Settings, LogOut, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 const Navigation = () => {
   const { user, logout } = useAuth();
+  const { preferences } = useUserPreferences();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -48,6 +50,36 @@ const Navigation = () => {
                 History
               </Button>
             </Link>
+            {/* Admin links, only visible to admins */}
+            {preferences?.user_role === 'admin' && (
+              <>
+                <Link to="/admin-dashboard">
+                  <Button variant={isActive('/admin-dashboard') ? 'default' : 'ghost'} size="sm">
+                    Admin Dashboard
+                  </Button>
+                </Link>
+                <Link to="/admin-panel">
+                  <Button variant={isActive('/admin-panel') ? 'default' : 'ghost'} size="sm">
+                    Admin Panel
+                  </Button>
+                </Link>
+                <Link to="/admin-payout">
+                  <Button variant={isActive('/admin-payout') ? 'default' : 'ghost'} size="sm">
+                    Admin Payout
+                  </Button>
+                </Link>
+                <Link to="/admin-task-review">
+                  <Button variant={isActive('/admin-task-review') ? 'default' : 'ghost'} size="sm">
+                    Task Review
+                  </Button>
+                </Link>
+                <Link to="/admin-request-queue">
+                  <Button variant={isActive('/admin-request-queue') ? 'default' : 'ghost'} size="sm">
+                    Request Queue
+                  </Button>
+                </Link>
+              </>
+            )}
           </nav>
 
           {/* Right side actions */}
